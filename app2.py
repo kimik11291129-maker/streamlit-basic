@@ -7,9 +7,12 @@ from pathlib import Path
 import streamlit as st
 from dotenv import load_dotenv
 from openai import OpenAI
-from PIL import Image
 
 load_dotenv()
+
+DEFAULT_MODEL = "gpt-5.6-terra"
+IMAGE_TYPES = ["jpg", "jpeg", "png", "gif", "webp"]
+FILE_TYPES = ["txt", "md", "csv", "json", "py"]
 
 DB_PATH = Path("chat_history.db")
 st.set_page_config(page_title="AI 채팅 어시스턴트", page_icon="🤖", layout="wide")
@@ -114,6 +117,20 @@ def init_session_state():
         st.session_state.current_conversation_id = None
     if "conversation_name" not in st.session_state:
         st.session_state.conversation_name = f"대화_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+    if "attached_image" not in st.session_state:
+        st.session_state.attached_image = None
+    if "attached_file" not in st.session_state:
+        st.session_state.attached_file = None
+
+
+def load_conversation(conversation_id, conversation_name):
+    # 저장된 대화를 현재 세션으로 불러오기
+    st.session_state.current_conversation_id = conversation_id
+    st.session_state.conversation_name = conversation_name
+    st.session_state.messages = [
+        {"role": role, "content": content}
+        for role, content, _, _, _ in get_conversation_messages(conversation_id)
+    ]
 
 
 def get_openai_client():
@@ -123,22 +140,88 @@ def get_openai_client():
     return OpenAI(api_key=api_key)
 
 
-def encode_image_to_base64(image_bytes):
-    return base64.standard_b64encode(image_bytes).decode("utf-8")
+def get_available_models():
+    # OpenAI 공식 모델 목록 기준 (developers.openai.com/api/docs/models/all)
+    # 전부 비전(이미지 입력) 지원 모델
+    return [
+        ("gpt-6-astra", "GPT-6 Astra (최상위 성능)"),
+        ("gpt-5.6-sol", "GPT-5.6 Sol (복잡한 전문 작업)"),
+        ("gpt-5.6-terra", "GPT-5.6 Terra (성능/비용 균형)"),
+        ("gpt-5.6-luna", "GPT-5.6 Luna (비용 최적화)"),
+        ("gpt-5.5-pro", "GPT-5.5 Pro (정밀한 응답)"),
+        ("gpt-5.5", "GPT-5.5 (코딩/전문 작업)"),
+    ]
 
 
-def process_image_file(uploaded_file):
-    # 이미지 파일을 base64로 인코딩하여 OpenAI Vision API용으로 변환
-    image_data = encode_image_to_base64(uploaded_file.read())
+def build_attachment(uploaded_file):
+    # 업로드된 파일을 세션에 보관 가능한 형태(bytes)로 변환
     return {
-        "type": "image_url",
-        "image_url": {"url": f"data:image/jpeg;base64,{image_data}"},
+        "name": uploaded_file.name,
+        "mime": uploaded_file.type,
+        "data": uploaded_file.getvalue(),
     }
 
 
-def process_text_file(uploaded_file):
-    # 텍스트 파일 내용을 읽어서 반환
-    return uploaded_file.read().decode("utf-8")
+def process_image_attachment(attachment):
+    # 이미지를 base64 data URL로 인코딩하여 Vision 입력으로 변환
+    encoded = base64.standard_b64encode(attachment["data"]).decode("utf-8")
+    return {
+        "type": "image_url",
+        "image_url": {"url": f"data:{attachment['mime']};base64,{encoded}"},
+    }
+
+
+def process_file_attachment(attachment):
+    # 텍스트 파일 내용을 문자열로 디코딩
+    return attachment["data"].decode("utf-8")
+
+
+@st.dialog("🖼️ 이미지 첨부")
+def image_upload_dialog():
+    # 팝업 안에서 드래그&드롭으로 이미지를 첨부하는 다이얼로그
+    st.caption("이미지를 이 영역에 드래그&드롭 하거나 클릭해서 선택하세요.")
+    uploaded = st.file_uploader(
+        "이미지 드래그&드롭",
+        type=IMAGE_TYPES,
+        key="image_dialog_uploader",
+        label_visibility="collapsed",
+    )
+
+    if uploaded:
+        st.image(uploaded, caption=uploaded.name, use_container_width=True)
+
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("✅ 첨부하기", use_container_width=True, disabled=uploaded is None):
+            st.session_state.attached_image = build_attachment(uploaded)
+            st.rerun()
+    with col2:
+        if st.button("취소", use_container_width=True):
+            st.rerun()
+
+
+@st.dialog("📄 파일 첨부")
+def file_upload_dialog():
+    # 팝업 안에서 드래그&드롭으로 텍스트 파일을 첨부하는 다이얼로그
+    st.caption("파일을 이 영역에 드래그&드롭 하거나 클릭해서 선택하세요.")
+    uploaded = st.file_uploader(
+        "파일 드래그&드롭",
+        type=FILE_TYPES,
+        key="file_dialog_uploader",
+        label_visibility="collapsed",
+    )
+
+    if uploaded:
+        st.success(f"📄 {uploaded.name} ({uploaded.size:,} bytes)")
+
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("✅ 첨부하기", use_container_width=True, disabled=uploaded is None):
+            st.session_state.attached_file = build_attachment(uploaded)
+            st.rerun()
+    with col2:
+        if st.button("취소", use_container_width=True):
+            st.rerun()
 
 
 def send_message_to_openai(client, user_message, image_content=None, file_content=None):
@@ -163,10 +246,8 @@ def send_message_to_openai(client, user_message, image_content=None, file_conten
     messages.append({"role": "user", "content": current_content})
 
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model=st.session_state.get("model", DEFAULT_MODEL),
         messages=messages,
-        temperature=0.7,
-        max_tokens=2000,
     )
 
     return response.choices[0].message.content
@@ -198,15 +279,43 @@ def main():
                 st.warning("⚠️ OpenAI API 키를 입력해주세요")
 
         st.divider()
+        st.subheader("🤖 모델 선택")
+
+        models = get_available_models()
+        model_labels = [label for _, label in models]
+        model_ids = [model_id for model_id, _ in models]
+
+        current_model = st.session_state.get("model", DEFAULT_MODEL)
+        selected_label = next(
+            (label for model_id, label in models if model_id == current_model),
+            model_labels[0],
+        )
+
+        selected_label = st.selectbox(
+            "사용할 모델",
+            model_labels,
+            index=model_labels.index(selected_label),
+            help="https://platform.openai.com/docs/models 참조",
+        )
+
+        st.session_state.model = model_ids[model_labels.index(selected_label)]
+        st.caption(f"📌 현재 선택: `{st.session_state.model}`")
+
+        st.divider()
         st.subheader("💾 대화 저장소")
 
         col1, col2 = st.columns(2)
         with col1:
             if st.button("➕ 새 대화", use_container_width=True):
-                conv_name = st.session_state.conversation_name
-                conv_id = create_conversation(conv_name)
-                st.session_state.current_conversation_id = conv_id
+                st.session_state.conversation_name = (
+                    f"대화_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+                )
+                st.session_state.current_conversation_id = create_conversation(
+                    st.session_state.conversation_name
+                )
                 st.session_state.messages = []
+                st.session_state.attached_image = None
+                st.session_state.attached_file = None
                 st.rerun()
 
         with col2:
@@ -218,29 +327,28 @@ def main():
                 st.rerun()
 
         st.divider()
-        st.subheader("📂 저장된 대화")
+        st.subheader("📂 이전 채팅 내역")
 
         conversations = get_conversations()
         if conversations:
             for conv_id, conv_name, updated_at in conversations:
-                col1, col2 = st.columns([3, 1])
+                is_current = conv_id == st.session_state.current_conversation_id
+                col1, col2 = st.columns([4, 1])
                 with col1:
-                    if st.button(f"💬 {conv_name}", use_container_width=True, key=f"conv_{conv_id}"):
-                        st.session_state.current_conversation_id = conv_id
-                        st.session_state.messages = []
-
-                        for role, content, _, _, _ in get_conversation_messages(conv_id):
-                            st.session_state.messages.append({
-                                "role": role,
-                                "content": content,
-                            })
-
+                    label = f"{'🟢' if is_current else '💬'} {conv_name}"
+                    if st.button(
+                        label,
+                        use_container_width=True,
+                        key=f"conv_{conv_id}",
+                        help=f"마지막 수정: {updated_at}",
+                    ):
+                        load_conversation(conv_id, conv_name)
                         st.rerun()
 
                 with col2:
                     if st.button("🗑️", key=f"del_{conv_id}", help="삭제"):
                         delete_conversation(conv_id)
-                        if st.session_state.current_conversation_id == conv_id:
+                        if is_current:
                             st.session_state.current_conversation_id = None
                             st.session_state.messages = []
                         st.rerun()
@@ -262,9 +370,12 @@ def main():
         return
 
     if st.session_state.current_conversation_id:
-        st.info(f"💾 현재 대화: {st.session_state.conversation_name} (ID: {st.session_state.current_conversation_id})")
+        st.info(
+            f"💾 현재 대화: **{st.session_state.conversation_name}** "
+            f"(메시지 {len(st.session_state.messages)}개)"
+        )
     else:
-        st.warning("📝 새 대화를 시작하세요")
+        st.warning("📝 메시지를 보내면 새 대화가 자동으로 시작됩니다")
 
     col1, col2 = st.columns([2, 1])
 
@@ -278,25 +389,37 @@ def main():
                     st.markdown(msg["content"])
 
     with col2:
-        st.subheader("📎 파일 첨부")
+        st.subheader("📎 첨부")
 
-        uploaded_image = st.file_uploader(
-            "이미지 선택",
-            type=["jpg", "jpeg", "png", "gif", "webp"],
-            key="image_uploader",
-        )
+        btn1, btn2 = st.columns(2)
+        with btn1:
+            if st.button("🖼️ 이미지 업로드", use_container_width=True):
+                image_upload_dialog()
+        with btn2:
+            if st.button("📄 파일 업로드", use_container_width=True):
+                file_upload_dialog()
 
-        uploaded_file = st.file_uploader(
-            "텍스트 파일 선택",
-            type=["txt", "md", "csv", "json"],
-            key="file_uploader",
-        )
+        attached_image = st.session_state.attached_image
+        attached_file = st.session_state.attached_file
 
-        if uploaded_image:
-            st.image(uploaded_image, caption="첨부된 이미지", use_container_width=True)
+        if attached_image:
+            st.image(
+                attached_image["data"],
+                caption=f"🖼️ {attached_image['name']}",
+                use_container_width=True,
+            )
+            if st.button("❌ 이미지 제거", use_container_width=True, key="remove_image"):
+                st.session_state.attached_image = None
+                st.rerun()
 
-        if uploaded_file:
-            st.info(f"📄 {uploaded_file.name} 첨부됨")
+        if attached_file:
+            st.success(f"📄 {attached_file['name']}")
+            if st.button("❌ 파일 제거", use_container_width=True, key="remove_file"):
+                st.session_state.attached_file = None
+                st.rerun()
+
+        if not attached_image and not attached_file:
+            st.caption("첨부된 항목이 없습니다.")
 
     st.divider()
 
@@ -317,20 +440,10 @@ def main():
             st.error("❌ OpenAI 클라이언트 초기화 실패")
             return
 
-        image_content = None
-        file_content = None
-        image_filename = None
-        file_filename = None
-
-        if uploaded_image:
-            uploaded_image.seek(0)
-            image_content = process_image_file(uploaded_image)
-            image_filename = uploaded_image.name
-
-        if uploaded_file:
-            uploaded_file.seek(0)
-            file_content = process_text_file(uploaded_file)
-            file_filename = uploaded_file.name
+        image_content = process_image_attachment(attached_image) if attached_image else None
+        file_content = process_file_attachment(attached_file) if attached_file else None
+        image_filename = attached_image["name"] if attached_image else None
+        file_filename = attached_file["name"] if attached_file else None
 
         with st.spinner("🔄 응답 생성 중..."):
             try:
@@ -362,6 +475,8 @@ def main():
                     response,
                 )
 
+                st.session_state.attached_image = None
+                st.session_state.attached_file = None
                 st.rerun()
 
             except Exception as e:
