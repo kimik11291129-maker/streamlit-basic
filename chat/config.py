@@ -5,7 +5,7 @@ import streamlit as st
 # 채팅 내용은 DB에 평문 저장되므로, 키를 실수로 붙여넣어도 원문이 남지 않게 가린다.
 _SECRET_PATTERN = re.compile(r"sk-[A-Za-z0-9_\-]{16,}")
 
-DEFAULT_MODEL = "gpt-5.6-terra"
+DEFAULT_MODEL = "gpt-5.6-luna"
 
 # 보관 정책 (1턴 = 내 메시지 1 + AI 답변 1)
 MAX_TURNS_PER_SESSION = 100

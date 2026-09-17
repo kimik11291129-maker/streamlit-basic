@@ -99,13 +99,21 @@ def render_sidebar():
         st.markdown("### ⚙️ 설정")
 
         models = get_available_models()
-        labels = [label for _, label in models]
         model_ids = [model_id for model_id, _ in models]
-        current_model = st.session_state.get("model", DEFAULT_MODEL)
-        index = model_ids.index(current_model) if current_model in model_ids else 0
+        model_labels = dict(models)
 
-        selected = st.selectbox("모델", labels, index=index)
-        st.session_state.model = model_ids[labels.index(selected)]
+        # key="model"로 위젯 값 자체가 session_state.model이 되게 해서,
+        # 라벨→ID 역매핑(labels.index(selected)) 없이 항상 유효한 모델 ID만 저장되게 한다.
+        # 라벨이 나중에 중복되거나 바뀌어도 깨지지 않는다.
+        if st.session_state.get("model") not in model_ids:
+            st.session_state.model = DEFAULT_MODEL
+
+        st.selectbox(
+            "모델",
+            model_ids,
+            format_func=lambda model_id: model_labels[model_id],
+            key="model",
+        )
 
 
 def render_empty_state():
