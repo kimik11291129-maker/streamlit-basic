@@ -1,10 +1,6 @@
-import os
 import re
 
 import streamlit as st
-from dotenv import load_dotenv
-
-load_dotenv()
 
 # 채팅 내용은 DB에 평문 저장되므로, 키를 실수로 붙여넣어도 원문이 남지 않게 가린다.
 _SECRET_PATTERN = re.compile(r"sk-[A-Za-z0-9_\-]{16,}")
@@ -32,23 +28,10 @@ def get_available_models():
 
 
 def resolve_api_key():
-    # 우선순위: 사용자가 등록한 키 > st.secrets(배포) > .env/환경변수(로컬)
-    # 등록 키를 1순위에 둬야 서버에 키가 있어도 다른 키로 바꿔 쓸 수 있다.
-    if st.session_state.get("user_api_key"):
-        return st.session_state.user_api_key, "수동 등록"
-
-    # secrets.toml이 없는 환경에서는 st.secrets 접근만으로 예외가 발생한다.
-    try:
-        if "OPENAI_API_KEY" in st.secrets:
-            return st.secrets["OPENAI_API_KEY"], "st.secrets (배포)"
-    except Exception:
-        pass
-
-    env_key = os.getenv("OPENAI_API_KEY")
-    if env_key:
-        return env_key, ".env (로컬)"
-
-    return None, None
+    # 서버가 미리 등록해둔 키(.env/st.secrets)는 절대 쓰지 않는다.
+    # 공개 배포 시 인증 없이 누구나 그 키를 눌러 쓸 수 있게 되는 경로라
+    # 방문자가 직접 등록한 키만 사용하도록 의도적으로 제한한다.
+    return st.session_state.get("user_api_key")
 
 
 def mask_key(key):

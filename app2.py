@@ -1,6 +1,7 @@
 import streamlit as st
 
 from chat.chat_page import render_chat_page
+from chat.config import resolve_api_key
 from chat.database import init_database
 from chat.history_page import render_history_page
 from chat.login_page import render_login_page
@@ -10,8 +11,9 @@ st.set_page_config(page_title="AI 채팅", page_icon="💬", layout="wide")
 apply_styles()
 init_database()
 
-# 키가 .env/secrets에 있어도 로그인 화면을 한 번 거치게 해서 보안 안내를 반드시 노출한다.
-if not st.session_state.get("authenticated"):
+# "로그인 완료" 여부는 별도 플래그가 아니라 "본인 키를 등록했는가"로만 판단한다.
+# 상태를 하나로 합쳐야 authenticated=True인데 키가 없는 불일치 상태 자체가 생길 수 없다.
+if not resolve_api_key():
     render_login_page()
     st.stop()
 

@@ -143,7 +143,7 @@ def handle_prompt(raw_prompt):
     if prompt != raw_prompt:
         st.toast("API 키로 보이는 문자열을 가렸습니다. 키는 채팅창에 입력하지 마세요.", icon="🔒")
 
-    api_key, _ = resolve_api_key()
+    api_key = resolve_api_key()
     client = OpenAI(api_key=api_key)
 
     with st.chat_message("user"):
