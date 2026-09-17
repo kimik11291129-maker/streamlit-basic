@@ -1,4 +1,4 @@
 @echo off
-uv run streamlit run app.py
-pause
+uv run streamlit run app2.py
+
 

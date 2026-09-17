@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#bdefff"/>
+      <stop offset="1" stop-color="#eaffff"/>
+    </linearGradient>
+    <linearGradient id="fur" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8b5a3c"/>
+      <stop offset="1" stop-color="#5b3528"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 배경 -->
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <circle cx="680" cy="105" r="55" fill="#fff7b2" opacity=".8"/>
+  <path d="M0 430 Q150 390 300 430 T600 430 T900 430 V600 H0Z"
+        fill="#65c9d8"/>
+  <path d="M0 485 Q150 445 300 485 T600 485 T900 485"
+        fill="none" stroke="#b4f2ed" stroke-width="12" opacity=".8"/>
+
+  <!-- 꼬리 -->
+  <path d="M570 360
+           C665 300 750 330 735 415
+           C723 480 635 485 558 430 Z"
+        fill="#704735" stroke="#43291f" stroke-width="8"/>
+  <path d="M620 365 Q690 350 705 390
+           M605 400 Q675 390 700 425
+           M590 435 Q650 430 680 455"
+        fill="none" stroke="#9a674b" stroke-width="8" opacity=".7"/>
+
+  <!-- 몸통 -->
+  <ellipse cx="395" cy="350" rx="245" ry="145"
+           fill="url(#fur)" stroke="#43291f" stroke-width="9"/>
+
+  <!-- 배 -->
+  <ellipse cx="400" cy="390" rx="140" ry="85" fill="#b77d58" opacity=".75"/>
+
+  <!-- 뒷발 -->
+  <ellipse cx="555" cy="450" rx="78" ry="35"
+           fill="#e08b4d" stroke="#43291f" stroke-width="8"/>
+  <path d="M530 448 l-18 24 M555 450 l-8 29 M580 447 l5 25"
+        stroke="#8b4b2c" stroke-width="7" stroke-linecap="round"/>
+
+  <!-- 머리 -->
+  <ellipse cx="260" cy="300" rx="155" ry="125"
+           fill="url(#fur)" stroke="#43291f" stroke-width="9"/>
+
+  <!-- 귀 -->
+  <circle cx="170" cy="205" r="34" fill="#5b3528" stroke="#43291f" stroke-width="8"/>
+  <circle cx="350" cy="205" r="34" fill="#5b3528" stroke="#43291f" stroke-width="8"/>
+
+  <!-- 얼굴 털 -->
+  <ellipse cx="250" cy="330" rx="103" ry="73" fill="#c18a62" opacity=".8"/>
+
+  <!-- 부리 -->
+  <path d="M125 305
+           C58 280 40 315 78 348
+           C120 384 205 370 245 333
+           C205 300 163 293 125 305 Z"
+        fill="#e58b3d" stroke="#43291f" stroke-width="9"/>
+  <path d="M78 334 Q145 344 223 326"
+        fill="none" stroke="#9b522c" stroke-width="6"/>
+
+  <!-- 눈 -->
+  <circle cx="205" cy="276" r="16" fill="#171313"/>
+  <circle cx="319" cy="276" r="16" fill="#171313"/>
+  <circle cx="200" cy="270" r="5" fill="white"/>
+  <circle cx="314" cy="270" r="5" fill="white"/>
+
+  <!-- 앞발 -->
+  <ellipse cx="295" cy="455" rx="45" ry="72"
+           fill="#e08b4d" stroke="#43291f" stroke-width="8"
+           transform="rotate(-18 295 455)"/>
+  <ellipse cx="430" cy="455" rx="45" ry="72"
+           fill="#e08b4d" stroke="#43291f" stroke-width="8"
+           transform="rotate(18 430 455)"/>
+
+  <!-- 물방울 -->
+  <circle cx="95" cy="150" r="7" fill="#fff" opacity=".8"/>
+  <circle cx="730" cy="230" r="9" fill="#fff" opacity=".8"/>
+  <circle cx="675" cy="180" r="5" fill="#fff" opacity=".8"/>
+
+  <!-- 제목 -->
+  <text x="400" y="555" text-anchor="middle"
+        font-family="sans-serif" font-size="30"
+        font-weight="bold" fill="#31515a">
+    귀여운 오리너구리
+  </text>
+</svg>
