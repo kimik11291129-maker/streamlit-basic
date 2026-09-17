@@ -356,6 +356,9 @@ def main():
             st.info("저장된 대화가 없습니다")
 
         st.divider()
+        st.caption("📜 전체 대화 검색/열람: `streamlit run app2_history.py`")
+
+        st.divider()
         st.markdown("### 📝 사용 가능 기능")
         st.markdown("""
         - 💬 일반 텍스트 채팅
