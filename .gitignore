@@ -6,4 +6,6 @@ __pycache__/
 .pytest_cache/
 *.egg-info/
 chat_history.db
+chat_history.db.bak
+.streamlit/secrets.toml
 .claude/settings.local.json
