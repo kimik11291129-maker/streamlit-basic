@@ -15,9 +15,6 @@ IMAGE_TYPES = ["jpg", "jpeg", "png", "gif", "webp"]
 FILE_TYPES = ["txt", "md", "csv", "json", "py"]
 
 DB_PATH = Path("chat_history.db")
-st.set_page_config(page_title="AI 채팅 어시스턴트", page_icon="🤖", layout="wide")
-st.title("🤖 AI 채팅 어시스턴트")
-st.caption("OpenAI API를 이용한 고급 채팅 - 이미지, 파일 분석 및 대화 저장 가능")
 
 
 def init_database():
@@ -253,7 +250,10 @@ def send_message_to_openai(client, user_message, image_content=None, file_conten
     return response.choices[0].message.content
 
 
-def main():
+def render_chat_page():
+    st.title("🤖 AI 채팅 어시스턴트")
+    st.caption("OpenAI API를 이용한 고급 채팅 - 이미지, 파일 분석 및 대화 저장 가능")
+
     init_database()
     init_session_state()
 
@@ -354,9 +354,6 @@ def main():
                         st.rerun()
         else:
             st.info("저장된 대화가 없습니다")
-
-        st.divider()
-        st.caption("📜 전체 대화 검색/열람: `streamlit run app2_history.py`")
 
         st.divider()
         st.markdown("### 📝 사용 가능 기능")
@@ -487,4 +484,16 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    from app2_history import render_history_page
+
+    st.set_page_config(page_title="AI 채팅 어시스턴트", page_icon="🤖", layout="wide")
+
+    pages = {
+        "AI 채팅 어시스턴트": [
+            st.Page(render_chat_page, title="채팅", icon="💬", default=True),
+            st.Page(render_history_page, title="히스토리", icon="📜"),
+        ],
+    }
+
+    pg = st.navigation(pages)
+    pg.run()

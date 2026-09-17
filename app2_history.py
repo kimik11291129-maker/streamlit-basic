@@ -4,9 +4,6 @@ from pathlib import Path
 import streamlit as st
 
 DB_PATH = Path("chat_history.db")
-st.set_page_config(page_title="채팅 히스토리", page_icon="📜", layout="wide")
-st.title("📜 채팅 히스토리")
-st.caption("app2.py에서 나눈 대화들을 검색하고 다시 살펴볼 수 있습니다.")
 
 
 def get_conversations():
@@ -50,11 +47,14 @@ def init_session_state():
         st.session_state.history_selected_id = None
 
 
-def main():
+def render_history_page():
+    st.title("📜 채팅 히스토리")
+    st.caption("채팅 페이지에서 나눈 대화들을 검색하고 다시 살펴볼 수 있습니다.")
+
     init_session_state()
 
     if not DB_PATH.exists():
-        st.info("아직 저장된 대화가 없습니다. app2.py에서 채팅을 시작해보세요.")
+        st.info("아직 저장된 대화가 없습니다. 채팅 페이지에서 대화를 시작해보세요.")
         return
 
     conversations = get_conversations()
@@ -123,4 +123,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    st.set_page_config(page_title="채팅 히스토리", page_icon="📜", layout="wide")
+    render_history_page()
