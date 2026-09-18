@@ -22,8 +22,13 @@ def render_main_page():
 
     # 2. 로그인된 경우 -> 전체 메인 포털 화면 렌더링
     st.title("🏠 메인 포털")
-    st.success(f"환영합니다, **{st.user.name}**님 ({st.user.email})! 👋")
+    st.success(f"환영합니다, **{st.user.name}**님! 👋")
+    st.write(f"- **이메일:** {st.user.email}")
     st.caption("로그인이 완료되어 모든 서비스 페이지에 접근하실 수 있습니다.")
+
+    # 세션 사용자 상세 정보 (st.user)
+    st.subheader("📋 세션 사용자 상세 정보 (`st.user`)")
+    st.write(st.user)
 
     # 쿼리 파라미터가 전달된 경우 표시
     if st.query_params:
