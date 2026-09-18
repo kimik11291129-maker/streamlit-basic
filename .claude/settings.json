@@ -1,7 +1,39 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Bash(mv chat_history.db chat_history.db.bak)",
+      "Bash(rm -f app2_history.py)",
+      "Bash(.venv/Scripts/python.exe \"C:/Users/Admin/AppData/Local/Temp/claude/c--Projects-streamlit-basic/dfed0e38-8f53-4f2f-9a4f-2ed8a3e3c4ff/scratchpad/verify_db.py\")",
+      "Bash(.venv/Scripts/python.exe -m streamlit run app2.py --server.port 8520 --server.headless true --logger.level=error)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" http://localhost:8520)",
+      "Bash(.venv/Scripts/python.exe \"C:/Users/Admin/AppData/Local/Temp/claude/c--Projects-streamlit-basic/dfed0e38-8f53-4f2f-9a4f-2ed8a3e3c4ff/scratchpad/verify_leak.py\")",
+      "Bash(PYTHONIOENCODING=utf-8 .venv/Scripts/python.exe \"C:/Users/Admin/AppData/Local/Temp/claude/c--Projects-streamlit-basic/dfed0e38-8f53-4f2f-9a4f-2ed8a3e3c4ff/scratchpad/verify_all.py\")",
+      "Bash(PYTHONIOENCODING=utf-8 .venv/Scripts/python.exe -c ' *)",
+      "Bash(.venv/Scripts/python.exe -m streamlit run app2.py --server.port 8521 --server.headless true --logger.level=error)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" http://localhost:8521)",
+      "Bash(grep -n \"\\\\.\\\\./\\\\|\\\\]\\(\\\\./\\\\|\\\\]\\(chat/\" \"과제/구현계획서.md\")",
+      "Read(//c/Users/Admin/**)",
+      "Read(//c/Users/Admin/.gemini/**)",
+      "Bash(grep -v \"\\\\.jsonl$\")",
+      "Read(//c/Users/Admin/.gemini/antigravity/mcp/notion-mcp-server/**)",
+      "Read(//c/Users/Admin/.gemini/config/**)",
+      "Bash(python -c ' *)",
+      "Bash(claude mcp *)",
+      "Bash(ls -la ~/.claude.json 2>&1; echo \"---\"; ls -la ~/.claude/ 2>&1 | head -20)",
+      "Bash(python \"C:/Users/Admin/AppData/Local/Temp/claude/c--Projects-streamlit-basic/dfed0e38-8f53-4f2f-9a4f-2ed8a3e3c4ff/scratchpad/add_notion_mcp.py\")",
+      "Bash(timeout 20 npm view @notionhq/notion-mcp-server version)",
+      "Bash(rm -rf chat/__pycache__)",
+      "Bash(PYTHONIOENCODING=utf-8 .venv/Scripts/python.exe \"C:/Users/Admin/AppData/Local/Temp/claude/c--Projects-streamlit-basic/dfed0e38-8f53-4f2f-9a4f-2ed8a3e3c4ff/scratchpad/verify_no_server_key.py\")",
+      "Bash(PYTHONIOENCODING=utf-8 .venv/Scripts/python.exe \"C:/Users/Admin/AppData/Local/Temp/claude/c--Projects-streamlit-basic/dfed0e38-8f53-4f2f-9a4f-2ed8a3e3c4ff/scratchpad/verify_no_server_key2.py\")",
+      "Bash(.venv/Scripts/python.exe -m streamlit run app2.py --server.port 8530 --server.headless true --logger.level=error)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" http://localhost:8530)",
+      "Bash(tasklist //FI \"IMAGENAME eq python.exe\" //V)",
+      "Bash(wmic process *)",
+      "Bash(PYTHONIOENCODING=utf-8 .venv/Scripts/python.exe \"C:/Users/Admin/AppData/Local/Temp/claude/c--Projects-streamlit-basic/dfed0e38-8f53-4f2f-9a4f-2ed8a3e3c4ff/scratchpad/verify_model_selector.py\")",
+      "PowerShell(Get-NetConnectionProfile)",
+      "PowerShell(Get-NetFirewallProfile -ErrorAction Stop)",
+      "Bash(curl -s -o /dev/null -w \"192.168.0.10:8540 응답: HTTP %{http_code}\\\\n\" --max-time 5 http://192.168.0.10:8540)"
     ]
   }
 }

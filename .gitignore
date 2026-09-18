@@ -1,4 +1,4 @@
-﻿.env
+.env
 __pycache__/
 .venv/
 *.pyc
@@ -8,4 +8,7 @@ __pycache__/
 chat_history.db
 chat_history.db.bak
 .streamlit/secrets.toml
+.streamlit/client_secret*.json
+client_secret*.json
 .claude/settings.local.json
+
